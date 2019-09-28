@@ -1,0 +1,18 @@
+{
+  "name": "doctrine",
+  "version": "1.0.0",
+  "description": "playground for data mappers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "data",
+    "mapper",
+    "nodejs",
+    "SQL",
+    "massive.js"
+  ],
+  "author": "Bertrand Chardon",
+  "license": "ISC"
+}
