@@ -61,6 +61,6 @@ const record = {
 
 const decision = new Decision(record)
 console.log(decision)
-decision.enterprises.then(enterprises => {
+decision.lawyers.then(enterprises => {
   console.log(enterprises)
 })

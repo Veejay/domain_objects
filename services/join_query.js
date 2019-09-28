@@ -20,14 +20,14 @@ class JoinQuery {
     console.log(query)
     return [
       {
-        siren: 'FD-22',
-        name: 'Sony',
-        id: 3456
+        first_name: 'FD-22',
+        last_name: 'Sony',
+        toque: 3456
       },
       {
-        siren: 'FD-45',
-        name: 'Apple',
-        id: 45
+        first_name: 'FD-45',
+        last_name: 'Apple',
+        toque: 45
       }
     ]
   }
