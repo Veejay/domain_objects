@@ -1,10 +1,17 @@
 class Joinee {
-  constructor({name, joinKey, fields}) {
+  constructor({name, joinKey, fields, mapper}) {
     this._name = name;
     this._joinKey = joinKey;
     this._fields = fields;
+    this._mapper = mapper
+  }
+  get table() {
+    return this._name
   }
 
+  get mapper() {
+    return this._mapper;
+  }
   get name() {
     return `${this._name} as joinee`;
   }

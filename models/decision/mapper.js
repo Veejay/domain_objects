@@ -1,9 +1,14 @@
 const DECISION_FIELDS_MAPPING = require('./mapping')
 const JoinQuery = require('../../services/join_query.js')
-const Joinee = require('../../services/joinee.js')
-const Joiner = require('../../services/joiner.js')
-
+const relations = require('./relations')
+const capitalize = require('../helpers/capitalize')
 const Enterprise = require('../enterprise/mapper')
+const Lawyer = require('../lawyer/mapper')
+
+const mappers = {
+  Enterprise,
+  Lawyer
+}
 
 class Decision {
   constructor(record) {
@@ -11,58 +16,35 @@ class Decision {
       const value = Reflect.get(record, attr)
       Reflect.set(this, attr, value)
     }
+    this._createRelationAccessors()
+  }
+  _createRelationAccessors() {
+    for (let relation of relations) {
+      this._createRelationAccessor(relation)
+    }
+    return true
   }
 
-  get jurisdiction() {
-    return this.juridiction
-  }
-
-  get lawyers() {
-    return this._getLawyers()
-  }
-
-  // generic and metaprogrammable through configuration files
-  // for enterprises, decisions, law firms, lawyers, legislation, commentaries, etc.
-  _getLawyers() {
-    const joiner = new Joiner({
-      name: 'decisions_lawyers',
-      joinKey: 'lawyer_id',
-      filterKey: 'doc_id'
-    })
-    const joinee = new Joinee({
-      name: 'lawyers',
-      joinKey: 'id',
-      fields: ['first_name', 'id', 'last_name', 'toque']
-    })
-    const joinQuery = new JoinQuery({ joiner, joinee })
-    return joinQuery.run(this.doc_id)
-  }
-
-  // this ends up being consumed by the outside world as
-  // const enterprises = await decision.enterprises
-  get enterprises() {
-    return new Promise((resolve, reject) => {
-      this._getEnterprises().then(enterprises => {
-        resolve(enterprises.map(enterprise => {
-          return new Enterprise(enterprise)
-        }))
-      }).catch(error => {
-        reject(error)
-      })
+  _createRelationAccessor(relation) {
+    const { joiner, joinee } = relation
+    console.log(joinee.table)
+    Object.defineProperty(this, joinee.table, {
+      get() {
+        return new Promise((resolve, reject) => {
+          this.getRelations({ joiner, joinee }).then(entities => {
+            resolve(entities.map(entity => {
+              console.log(entity)
+              return Reflect.construct(mappers[joinee.mapper], [entity])
+            }))
+          }).catch(error => {
+            reject(error)
+          })
+        })
+      }
     })
   }
 
-  _getEnterprises() {
-    const joiner = new Joiner({
-      name: 'decisions_enterprises',
-      joinKey: 'enterprise_id',
-      filterKey: 'doc_id'
-    })
-    const joinee = new Joinee({
-      name: 'enterprises',
-      joinKey: 'id',
-      fields: ['enterprise_name', 'id', 'siren']
-    })
+  getRelations({ joiner, joinee }) {
     const joinQuery = new JoinQuery({ joiner, joinee })
     return joinQuery.run(this.doc_id)
   }
@@ -78,4 +60,7 @@ const record = {
 }
 
 const decision = new Decision(record)
-console.log(decision.lawyers)
+console.log(decision)
+decision.enterprises.then(enterprises => {
+  console.log(enterprises)
+})

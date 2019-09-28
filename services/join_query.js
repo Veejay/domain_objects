@@ -1,11 +1,11 @@
 class JoinQuery {
-  constructor({joiner, joinee}) {
+  constructor({ joiner, joinee }) {
     this.joiner = joiner
     this.joinee = joinee
   }
 
-  run(id) {
-    return `
+  async run(id) {
+    const query = `
     SELECT
       ${this.joinee.fields}
     FROM
@@ -17,7 +17,19 @@ class JoinQuery {
     WHERE
       ${this.joiner.filterKey} = ${id}
     `;
-    
+    console.log(query)
+    return [
+      {
+        siren: 'FD-22',
+        name: 'Sony',
+        id: 3456
+      },
+      {
+        siren: 'FD-45',
+        name: 'Apple',
+        id: 45
+      }
+    ]
   }
 }
 

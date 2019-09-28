@@ -1,6 +1,7 @@
 class Enterprise {
   constructor(record) {
-    for (let attr of ENTERPRISE_FIELDS_MAPPING) {
+    console.log(`RECORD: ${record}`)
+    for (let attr of ['siren', 'id', 'name']) {
       const value = Reflect.get(record, attr)
       Reflect.set(this, attr, value)
     }

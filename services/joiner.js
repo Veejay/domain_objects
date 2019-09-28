@@ -5,6 +5,10 @@ class Joiner {
     this._filterKey = filterKey
   }
 
+  get table() {
+    return this._name;
+  }
+
   get name() {
     return `${this._name} as joiner`
   }
