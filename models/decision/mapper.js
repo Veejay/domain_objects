@@ -21,6 +21,8 @@ class Decision {
     return this._getLawyers()
   }
 
+  // generic and metaprogrammable through configuration files
+  // for enterprises, decisions, law firms, lawyers, legislation, commentaries, etc.
   _getLawyers() {
     const joiner = new Joiner({
       name: 'decisions_lawyers',
