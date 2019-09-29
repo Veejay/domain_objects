@@ -7,6 +7,26 @@ it's obvious looking at the static finders inside of the `Decision` class that w
 
 the class pattern isn't really suited here, we need a factory to build objects, allowing us to deliver *static* and *instance* functions all at once without having to jump through hoops to get to the relations/table/fields information
 
+something like:
+
+```
+class Decision {
+  static new(record) {
+
+  }
+
+  static async findOne() {
+    ...
+  }
+
+  static async findAll() {
+
+  }
+}
+```
+
+as an alternative, investigate [class expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/class)
+
 ## configuration
 
 objects are a nice fit but maybe JSON would also work, investigate that
