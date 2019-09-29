@@ -1,10 +1,10 @@
 // configuration
-const mappers = require('./mappers')
+const mappers = require('./configuration')
 const relations = require('./relations')
 
 // services
-const JoinQuery = require('../../services/join_query.js')
-const EntityBuilder = require('../../services/entity_builder')
+const JoinQuery = require('../services/sql/join_query')
+const MapperBuilder = require('./builder')
 
 
 class Decision {
@@ -32,7 +32,7 @@ class Decision {
         return new Promise((resolve, reject) => {
           this._getRelations({ joiner, joinee }).then(entities => {
             resolve(entities.map(entity => {
-              return EntityBuilder.build({ name, data: entity })
+              return MapperBuilder.build({ name, data: entity })
             }))
           }).catch(error => {
             reject(error)
@@ -59,6 +59,6 @@ const record = {
 
 const decision = new Decision(record)
 console.log(decision)
-decision.lawyers.then(enterprises => {
-  console.log(enterprises)
+decision.lawyers.then(lawyers => {
+  console.log(lawyers)
 })

@@ -1,5 +1,5 @@
-const Joinee = require('../../services/joinee.js')
-const Joiner = require('../../services/joiner.js')
+const Joinee = require('../services/sql/joinee.js')
+const Joiner = require('../services/sql/joiner.js')
 
 const configuration = {
   decisions: [
@@ -13,6 +13,7 @@ const configuration = {
         name: 'enterprises',
         fields: ['siren', 'name', 'id'],
         joinKey: 'id',
+        mapper: 'Enterprise'
       }
     },
     {
@@ -25,6 +26,7 @@ const configuration = {
         name: 'lawyers',
         fields: ['first_name', 'last_name', 'id', 'toque'],
         joinKey: 'id',
+        mapper: 'Lawyer'
       }
     }
   ]
