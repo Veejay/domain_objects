@@ -8,7 +8,9 @@ class Joinee {
   get table() {
     return this._name
   }
-
+  buildEntity(data) {
+    return Reflect.construct(this._mapper, [data])
+  }
   get mapper() {
     return this._mapper;
   }

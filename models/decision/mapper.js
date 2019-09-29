@@ -1,40 +1,38 @@
-const DECISION_FIELDS_MAPPING = require('./mapping')
-const JoinQuery = require('../../services/join_query.js')
+// configuration
+const mappers = require('./mappers')
 const relations = require('./relations')
-const capitalize = require('../helpers/capitalize')
-const Enterprise = require('../enterprise/mapper')
-const Lawyer = require('../lawyer/mapper')
 
-const mappers = {
-  Enterprise,
-  Lawyer
-}
+// services
+const JoinQuery = require('../../services/join_query.js')
+const EntityBuilder = require('../../services/entity_builder')
+
 
 class Decision {
   constructor(record) {
-    for (let attr of DECISION_FIELDS_MAPPING) {
-      const value = Reflect.get(record, attr)
-      Reflect.set(this, attr, value)
+    const { fields, table } = Reflect.get(mappers, this.constructor.name)
+    for (let field of fields) {
+      const value = Reflect.get(record, field)
+      Reflect.set(this, field, value)
     }
-    this._createRelationAccessors()
+    this._createRelationAccessors(Reflect.get(relations, table))
   }
-  _createRelationAccessors() {
+
+  // extract this to some generic location
+  _createRelationAccessors(relations) {
     for (let relation of relations) {
       this._createRelationAccessor(relation)
     }
-    return true
   }
 
   _createRelationAccessor(relation) {
     const { joiner, joinee } = relation
-    console.log(joinee.table)
+    const name = joinee.mapper
     Object.defineProperty(this, joinee.table, {
       get() {
         return new Promise((resolve, reject) => {
-          this.getRelations({ joiner, joinee }).then(entities => {
+          this._getRelations({ joiner, joinee }).then(entities => {
             resolve(entities.map(entity => {
-              console.log(entity)
-              return Reflect.construct(mappers[joinee.mapper], [entity])
+              return EntityBuilder.build({ name, data: entity })
             }))
           }).catch(error => {
             reject(error)
@@ -44,7 +42,7 @@ class Decision {
     })
   }
 
-  getRelations({ joiner, joinee }) {
+  _getRelations({ joiner, joinee }) {
     const joinQuery = new JoinQuery({ joiner, joinee })
     return joinQuery.run(this.doc_id)
   }
