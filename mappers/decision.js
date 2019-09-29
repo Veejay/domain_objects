@@ -1,13 +1,15 @@
-// configuration
-const relations = require('./relations')
+
 const Finder = require('../services/sql/finder')
 // services
 const JoinQuery = require('../services/sql/join_query')
 const MapperBuilder = require('./builder')
-const { fields, table } = Reflect.get(require('./mappers'), 'Decision')
+
+// THIS SHOULD BE EXTRACTED TO A BASE CLASS EVENTUALLY
+// IT'S KIND OF A TEMPLATE FOR NOW
 
 class Decision {
   constructor(record) {
+    const {table, relations, mapper, fields} = require('./configuration')
     this._init(record)
     this._createGetters(fields)
     this._createRelationGetters(Reflect.get(relations, table))
@@ -65,7 +67,7 @@ class Decision {
     const record = await Finder.findOne(table, { doc_id }, fields)
     return new Decision(record)
   }
-
+ 
   static async findAll(criteria) {
     const { fields, table } = Reflect.get(require('./mappers'), 'Decision')
     const records = await Finder.findAll(table, criteria, fields)
@@ -84,8 +86,10 @@ const record = {
   juridiction: 'CA',
 }
 
-const decision = new Decision(record)
-console.log(decision)
-decision.lawyers.then(lawyers => {
-  console.log(lawyers)
-})
+Decision.test()
+
+// const decision = new Decision(record)
+// console.log(decision)
+// decision.lawyers.then(lawyers => {
+//   console.log(lawyers)
+// })
