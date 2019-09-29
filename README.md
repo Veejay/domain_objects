@@ -9,7 +9,7 @@ the class pattern isn't really suited here, we need a factory to build objects, 
 
 something like:
 
-```
+```js
 class Decision {
   static new(record) {
 
