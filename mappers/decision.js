@@ -1,50 +1,16 @@
-// configuration
+const Mapper = require('./mapper')
 const mappers = require('./configuration')
-const relations = require('./relations')
 
-// services
-const JoinQuery = require('../services/sql/join_query')
-const MapperBuilder = require('./builder')
-
-
-class Decision {
+class Decision extends Mapper {
   constructor(record) {
-    const { fields, table } = Reflect.get(mappers, this.constructor.name)
-    for (let field of fields) {
-      const value = Reflect.get(record, field)
-      Reflect.set(this, field, value)
-    }
-    this._createRelationAccessors(Reflect.get(relations, table))
+    const { fields, table } = Reflect.get(mappers, 'Decision')
+    super(fields, table, record)
   }
 
-  // extract this to some generic location
-  _createRelationAccessors(relations) {
-    for (let relation of relations) {
-      this._createRelationAccessor(relation)
-    }
-  }
-
-  _createRelationAccessor(relation) {
-    const { joiner, joinee } = relation
-    const name = joinee.mapper
-    Object.defineProperty(this, joinee.table, {
-      get() {
-        return new Promise((resolve, reject) => {
-          this._getRelations({ joiner, joinee }).then(entities => {
-            resolve(entities.map(entity => {
-              return MapperBuilder.build({ name, data: entity })
-            }))
-          }).catch(error => {
-            reject(error)
-          })
-        })
-      }
-    })
-  }
-
-  _getRelations({ joiner, joinee }) {
-    const joinQuery = new JoinQuery({ joiner, joinee })
-    return joinQuery.run(this.doc_id)
+  static async find(doc_id) {
+    const finder = new Finder({ table: 'decisions', doc_id })
+    const record = await finder.run()
+    return record
   }
 }
 
