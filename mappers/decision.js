@@ -1,30 +1,31 @@
 // configuration
-const mappers = require('./configuration')
 const relations = require('./relations')
-
+const Finder = require('../services/sql/finder')
 // services
 const JoinQuery = require('../services/sql/join_query')
 const MapperBuilder = require('./builder')
-
+const { fields, table } = Reflect.get(require('./mappers'), 'Decision')
 
 class Decision {
   constructor(record) {
-    const { fields, table } = Reflect.get(mappers, this.constructor.name)
+    this._init(record)
+    this._createGetters(fields)
+    this._createRelationGetters(Reflect.get(relations, table))
+  }
+  _init(record) {
     for (let field of fields) {
       const value = Reflect.get(record, field)
-      Reflect.set(this, field, value)
+      Reflect.set(this, `_${field}`, value)
     }
-    this._createRelationAccessors(Reflect.get(relations, table))
   }
-
   // extract this to some generic location
-  _createRelationAccessors(relations) {
+  _createRelationGetters(relations) {
     for (let relation of relations) {
-      this._createRelationAccessor(relation)
+      this._createRelationGetter(relation)
     }
   }
 
-  _createRelationAccessor(relation) {
+  _createRelationGetter(relation) {
     const { joiner, joinee } = relation
     const name = joinee.mapper
     Object.defineProperty(this, joinee.table, {
@@ -41,10 +42,36 @@ class Decision {
       }
     })
   }
+  _createGetters(fields) {
+    for(let field of fields) {
+      this._createGetters(field)
+    }
+  }
 
+  _createGetter(field) {
+    Object.defineProperty(this, field, {
+      get() {
+        return Reflect.get(this, `_{field}`)
+      }
+    })
+  }
   _getRelations({ joiner, joinee }) {
     const joinQuery = new JoinQuery({ joiner, joinee })
     return joinQuery.run(this.doc_id)
+  }
+
+  static async find({ doc_id }) {
+    const { fields, table } = Reflect.get(require('./mappers'), 'Decision')
+    const record = await Finder.findOne(table, { doc_id }, fields)
+    return new Decision(record)
+  }
+
+  static async findAll(criteria) {
+    const { fields, table } = Reflect.get(require('./mappers'), 'Decision')
+    const records = await Finder.findAll(table, criteria, fields)
+    return records.map(record => {
+      return new Decision(record)
+    })
   }
 }
 

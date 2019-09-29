@@ -11,6 +11,8 @@ const configuration = {
       },
       joinee: {
         name: 'enterprises',
+        // might want to add an `alias` here for the relation getter
+        // since the table we'll be querying has potentially complicated names
         fields: ['siren', 'name', 'id'],
         joinKey: 'id',
         mapper: 'Enterprise'
